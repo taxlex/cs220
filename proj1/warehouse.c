@@ -5,8 +5,8 @@
 
 int main(int argc, char ** argv) {
 	int maxInt = 2147483647;
-	int slotOn=0;//used at the start to fill up empty slots first
-	int leastUsed[2];//0 = slot index, 1 = times used. used to find which bin has been used the least
+	int slotOn=0;//used at the start to fill up empty slots at the start
+	int leastUsed[2];//0 = slot index, 1 = times used. Used to find which bin has been used the least
 	int tracker[100];//keeps track of how many times each bin is used
 	int currSlots[4];//used to keep track of whats in each slot
 	int i;
@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
 	while(1==scanf("%d",&bin)) {
 		//if the bin is not in a slot
 		if (-1==findSlot(bin)) {
-			//fills up slots before replacing
+			//fills up slots before replacing any bins
 			if(slotOn < 4){
 				getBin(bin,slotOn);
 				currSlots[slotOn] = bin;
