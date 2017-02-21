@@ -58,10 +58,13 @@ void freeTree(struct tnode * t) {
 
 void insertVal(struct tnode * t, int value) {
 	assert(t);
+	//decides if the value should go to the right or left ofthe node
 	if(value <= t->value ){
+		//if the node is null it makes a new node with the value
 		if(t->left == NULL){
 			t->left = makeNode(value);
 		}
+		//if the null is not null it class itself again but with the child node as argument
 		else{
 			insertVal(t->left,value);
 		}
@@ -75,7 +78,7 @@ void insertVal(struct tnode * t, int value) {
 		}
 	}
 }
-
+//recursively goes to the left then prints out from left to right
 void prLVR(struct tnode * t) {
 	assert(t);
 	if(t->left != NULL){
@@ -87,7 +90,7 @@ void prLVR(struct tnode * t) {
 	}
 }
 
-
+//recursively goes to the right then prints out from right to left
 void prRVL(struct tnode * t) {
 	assert(t);
 	if(t->right != NULL){
@@ -102,6 +105,7 @@ void prRVL(struct tnode * t) {
 void printTree(struct tnode * t, char * prefix) {
 	assert(t);
 	if(t->right != NULL){
+		//appends "  |" to the prefix to be passed down to the next level
 		int len = strlen(prefix);
 		char str[len + 4];
 		strcpy(str,prefix);
@@ -111,6 +115,7 @@ void printTree(struct tnode * t, char * prefix) {
 		str[len+3] = '\0';
 		printTree(t->right,str);
 	}
+	//if the node has no children it is not printed with a '+'
 	if(t->left != NULL || t->right != NULL){
 		printf("%s%d%c\n",prefix,t->value,'+');
 	}
@@ -118,6 +123,7 @@ void printTree(struct tnode * t, char * prefix) {
 		printf("%s%d \n",prefix,t->value);
 	}
 	if(t->left != NULL){
+		//appends "  |" to the prefix to be passed down to the next level
 		int len = strlen(prefix);
 		char str[len + 4];
 		strcpy(str,prefix);
