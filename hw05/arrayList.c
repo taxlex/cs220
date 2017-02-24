@@ -30,7 +30,7 @@ bool arrayListAdd(arrayList list, int item){
 		added = true;
 	}
 	else{
-		arrayListEnlarge(list);
+		assert(arrayListEnlarge(list));
 		list->data[list->numUsed] = item;
 		list->numUsed++;
 		added = true;
@@ -76,7 +76,8 @@ int arrayListSet(arrayList list, int index, int item){
 		list->data[index] = item;
 	}
 	else{
-		arrayListEnlarge(list);
+		assert(arrayListEnlarge(list));
+		//calls itself again just in case the index is still out of bounds
 		prevVal = arrayListSet(list, index, item);
 	}
 	return prevVal;
@@ -86,14 +87,19 @@ int arrayListSize(arrayList list){
 }
 char * arrayListToString(arrayList list,char *buffer){
 	int i;
-	/*
+	char temp[20];
+	memset(buffer,0,strlen(buffer));
+	buffer = strcat(buffer,"[");
 	for(i = 0; i < list->numUsed; i++){
-		snprintf(buffer,list->numUsed,"%d",list->data[i]);
+		snprintf(temp,list->numUsed,"%d",list->data[i]);
+		buffer = strcat(buffer,temp);
+		if(i != list->numUsed -1){
+			buffer = strcat(buffer,", ");
+		}
 	}
-	*/
+	buffer = strcat(buffer,"]");
 	return buffer;
 }
-/* Put definitions of the other arrayList methods in arrayList.h here */
 
 void arrayListFree(arrayList list) {
 	free(list->data);
