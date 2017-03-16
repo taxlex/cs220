@@ -51,10 +51,13 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	}
 	bitMaskExp/=2;
 	bitMaskExp--;
-	unsigned long exp = EXP -1023;
+	unsigned long exp;
+	if(EXP>=1023) exp = EXP -1023;
+	else exp = 1023-EXP;
 	bitMaskExp+=exp;
-
-	ret = ret|(bitMaskExp<<((*def).totBits-(*def).expBits)-1);
+	ret = ret|(bitMaskExp<<((*def).totBits-(*def).expBits-1));
+	//assigning fractionbits
+	ret = ret|(FRAC>>(52-((*def).totBits-(*def).expBits-1)));
 
 
     return ret;
