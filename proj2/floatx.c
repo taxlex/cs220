@@ -51,14 +51,28 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	}
 	bitMaskExp/=2;
 	bitMaskExp--;
-	unsigned long exp;
-	if(EXP>=1023) exp = EXP -1023;
-	else exp = 1023-EXP;
+	int exp;
+	int temp = EXP -1023;
+	if(EXP>=1023){
+		if(temp > bitMaskExp){
+			exp = 0;
+			bitMaskExp*=2;
+		} 
+		else exp = EXP -1023;
+	}
+	else{
+		if(-1*temp > bitMaskExp){
+			exp = 0;
+			bitMaskExp = 0;
+		} 
+		exp = temp;
+	} 
 	bitMaskExp+=exp;
 	ret = ret|(bitMaskExp<<((*def).totBits-(*def).expBits-1));
 	//assigning fractionbits
 	ret = ret|(FRAC>>(52-((*def).totBits-(*def).expBits-1)));
-
+	if(1&FRAC>>(52-((*def).totBits-(*def).expBits))) ret++;
+	printf("Ret is %x , Frac is %x Exp is %x \n",ret,(FRAC>>(52-((*def).totBits-(*def).expBits-1))),bitMaskExp );
 
     return ret;
 
