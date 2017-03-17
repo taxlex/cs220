@@ -53,10 +53,13 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	bitMaskExp--;
 	int exp;
 	int temp = EXP -1023;
+	bool tooBig = false;
 	if(EXP>=1023){
 		if(temp > bitMaskExp){
 			exp = 0;
 			bitMaskExp*=2;
+			bitMaskExp++;
+			tooBig = true;
 		} 
 		else exp = EXP -1023;
 	}
@@ -69,8 +72,11 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	} 
 	bitMaskExp+=exp;
 	ret = ret|(bitMaskExp<<((*def).totBits-(*def).expBits-1));
-	//assigning fractionbits
+	//if the number was too large to hold in the exponent it does not assign the fraction part
+	if(tooBig) return ret;
+	//assigns fraction bits
 	ret = ret|(FRAC>>(52-((*def).totBits-(*def).expBits-1)));
+	//adds one if needs to be rounded
 	if(1&FRAC>>(52-((*def).totBits-(*def).expBits))) ret++;
 	printf("Ret is %x , Frac is %x Exp is %x \n",ret,(FRAC>>(52-((*def).totBits-(*def).expBits-1))),bitMaskExp );
 
