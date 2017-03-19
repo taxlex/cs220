@@ -15,6 +15,8 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 		unsigned char c[8];
 	} representations;
 	representations.d = value;
+	bool zero = false;
+	if(value == 0) zero = true;
 	unsigned long EXP=(representations.i & 0x7FF0000000000000)>>52;
 	//EXP-1023 because thats half of the bits reserved for exp
 	unsigned long FRAC=(representations.i & 0xFFFFFFFFFFFFF);
@@ -79,6 +81,9 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 
 		ret = ret|(1<<((*def).totBits-(*def).expBits-2));
 	}
+	if(zero){
+		ret = 0;
+	}
 
     return ret;
 }
@@ -94,21 +99,18 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 	representations.i = 0;
 	int i;
 
-
-	printf("%lu \n", fx);
-
+	bool zero = false;
+	if(fx == 0) zero = true;
+	//section is to account for denormalized numbers, checks to see if the exponent bits are all off
 	unsigned long denorm = 1;
 	for(i = 0; i < (*def).totBits - (*def).expBits -1; i++){
 		denorm *=2;
 	}
 
 	if(fx <= denorm){
-		printf("%lu \n", fx);
 		fx &= ~(1<<((*def).totBits - (*def).expBits -2));
 		fx = fx<<1;
 		fx &= ~(1<<((*def).totBits - (*def).expBits));
-		printf("%lu \n", fx);
-		printf("worked \n");
 	}
 
 
@@ -117,7 +119,7 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 
 
 	unsigned long leftBit = 1;
-	//finds furthes left value 
+	//finds furthes left value of fx
 	for(i = 0; i < (*def).totBits -1; i++){
 		leftBit*=2;
 	}
@@ -127,7 +129,6 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 
 
 	int bitMaskExp =1;
-	//Since the math library requires changing the makefile, I used a for loop instead of pow()
 	for(i=0; i< (*def).expBits-1; i++){
 		bitMaskExp*=2;
 	}
@@ -135,6 +136,7 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 
 	int temp = fx>>((*def).totBits-(*def).expBits-1);
 	temp &= ~(1<<(*def).expBits);
+	//tooBig is a bool to know if it should convert to infinity
 	bool tooBig = false;
 	if(temp >= bitMaskExp*2) tooBig = true;
 	temp -= bitMaskExp;
@@ -152,6 +154,7 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 
 
 	if(tooBig) representations.i|=0x7FF0000000000000;
+	if(zero) representations.d = 0.0;
 
 	//bitMaskExp = (fx&(bitMaskExp<<((*def).totBits-(*def).expBits - 1)))>>(*def).totBits-(*def).expBits - 1);
 	
