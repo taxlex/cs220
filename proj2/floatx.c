@@ -87,6 +87,54 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
  *  (as defined by *def).
  */
 double floatxToDouble(const floatxDef *def, floatx fx) {
-	/* Put your code here */
-	return NAN;
+	union {
+		double d;
+		unsigned long i;
+	} representations;
+
+
+	representations.i = 0;
+
+
+
+	int i;
+	unsigned long leftBit = 1;
+	//finds furthes left value 
+	for(i = 0; i < (*def).totBits -1; i++){
+		leftBit*=2;
+	}
+	if(fx&leftBit){
+		representations.i = representations.i|0x8000000000000000;
+	}
+
+
+	int bitMaskExp =1;
+	//Since the math library requires changing the makefile, I used a for loop instead of pow()
+	for(i=0; i< (*def).expBits-1; i++){
+		bitMaskExp*=2;
+	}
+	bitMaskExp--;
+
+	int temp = fx>>((*def).totBits-(*def).expBits-1);
+	temp &= ~(1<<(*def).expBits);
+	temp -= bitMaskExp;
+	
+	unsigned long doubleExp = 0x3FF;
+	doubleExp += temp;
+	representations.i = representations.i|(doubleExp<<52);
+
+	unsigned long fracx = 1;
+	for(i=0; i< (*def).totBits - (*def).expBits -1; i++){
+		fracx *= 2;
+	}
+	fracx--;
+	fracx = fracx&fx;
+	representations.i = representations.i|(fracx<<(52 - ((*def).totBits-(*def).expBits -1)));
+
+	//bitMaskExp = (fx&(bitMaskExp<<((*def).totBits-(*def).expBits - 1)))>>(*def).totBits-(*def).expBits - 1);
+	
+
+
+
+	return representations.d;
 }
