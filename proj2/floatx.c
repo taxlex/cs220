@@ -16,6 +16,7 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	} representations;
 	printf("\n\n");
 	representations.d = value;
+	printf("Double num: %lu \n",representations.i);
 	unsigned long EXP=(representations.i & 0x7FF0000000000000)>>52;
 	//EXP-1023 because thats half of the bits reserved for exp
 	printf("Exponent: %lu \n", (EXP));
@@ -54,6 +55,7 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	int exp;
 	int temp = EXP -1023;
 	bool tooBig = false;
+	bool deNormalized = false;
 	if(EXP>=1023){
 		if(temp > bitMaskExp){
 			exp = 0;
@@ -64,11 +66,12 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 		else exp = EXP -1023;
 	}
 	else{
-		if(-1*temp > bitMaskExp){
+		if(-1*temp >= bitMaskExp){
 			exp = 0;
 			bitMaskExp = 0;
+			deNormalized = true;
+			printf("got here \n");
 		} 
-		exp = temp;
 	} 
 	bitMaskExp+=exp;
 	ret = ret|(bitMaskExp<<((*def).totBits-(*def).expBits-1));
@@ -78,7 +81,15 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	ret = ret|(FRAC>>(52-((*def).totBits-(*def).expBits-1)));
 	//adds one if needs to be rounded
 	if(1&FRAC>>(52-((*def).totBits-(*def).expBits))) ret++;
-	printf("Ret is %x , Frac is %x Exp is %x \n",ret,(FRAC>>(52-((*def).totBits-(*def).expBits-1))),bitMaskExp );
+	if(deNormalized){
+		ret = ret>>1;
+		if((ret >> ((*def).totBits-2) & 1)){
+			ret &= ~(1 << ((*def).totBits-2));
+			ret |= (1 << ((*def).totBits-1));
+		}
+
+		ret = ret|(1<<((*def).totBits-(*def).expBits-2));
+	}
 
     return ret;
 
