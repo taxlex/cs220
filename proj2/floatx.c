@@ -91,13 +91,31 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 		double d;
 		unsigned long i;
 	} representations;
-
-
 	representations.i = 0;
-
-
-
 	int i;
+
+
+	printf("%lu \n", fx);
+
+	unsigned long denorm = 1;
+	for(i = 0; i < (*def).totBits - (*def).expBits -1; i++){
+		denorm *=2;
+	}
+
+	if(fx <= denorm){
+		printf("%lu \n", fx);
+		fx &= ~(1<<((*def).totBits - (*def).expBits -2));
+		fx = fx<<1;
+		fx &= ~(1<<((*def).totBits - (*def).expBits));
+		printf("%lu \n", fx);
+		printf("worked \n");
+	}
+
+
+
+
+
+
 	unsigned long leftBit = 1;
 	//finds furthes left value 
 	for(i = 0; i < (*def).totBits -1; i++){
@@ -117,8 +135,9 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 
 	int temp = fx>>((*def).totBits-(*def).expBits-1);
 	temp &= ~(1<<(*def).expBits);
+	bool tooBig = false;
+	if(temp >= bitMaskExp*2) tooBig = true;
 	temp -= bitMaskExp;
-	
 	unsigned long doubleExp = 0x3FF;
 	doubleExp += temp;
 	representations.i = representations.i|(doubleExp<<52);
@@ -130,6 +149,9 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 	fracx--;
 	fracx = fracx&fx;
 	representations.i = representations.i|(fracx<<(52 - ((*def).totBits-(*def).expBits -1)));
+
+
+	if(tooBig) representations.i|=0x7FF0000000000000;
 
 	//bitMaskExp = (fx&(bitMaskExp<<((*def).totBits-(*def).expBits - 1)))>>(*def).totBits-(*def).expBits - 1);
 	
