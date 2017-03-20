@@ -15,6 +15,7 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 		unsigned char c[8];
 	} representations;
 	representations.d = value;
+	//bool zero to handle the zero case
 	bool zero = false;
 	if(value == 0) zero = true;
 	unsigned long EXP=(representations.i & 0x7FF0000000000000)>>52;
@@ -71,16 +72,17 @@ floatx doubleToFloatx(const floatxDef *def, double value) {
 	ret = ret|(FRAC>>(52-((*def).totBits-(*def).expBits-1)));
 	//adds one if needs to be rounded
 	if(1&FRAC>>(52-((*def).totBits-(*def).expBits))) ret++;
-	//convert from denormalized number
+	//convert to denormalized number
 	if(deNormalized){
 		ret = ret>>1;
-		if((ret >> ((*def).totBits-2) & 1)){
-			ret &= ~(1 << ((*def).totBits-2));
-			ret |= (1 << ((*def).totBits-1));
+		if(sign){
+			ret &= ~(1L << ((*def).totBits-2));
+			ret |= (1L << ((*def).totBits-1));
 		}
 
 		ret = ret|(1<<((*def).totBits-(*def).expBits-2));
 	}
+	//if the input was zero it assigns 0 to ret because +0 = -0
 	if(zero){
 		ret = 0;
 	}
@@ -106,11 +108,16 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 	for(i = 0; i < (*def).totBits - (*def).expBits -1; i++){
 		denorm *=2;
 	}
-
-	if(fx <= denorm){
+	unsigned long tempDenorm = fx;
+	//bool to check if fx is positive to add the bit back after it is shifted left
+	bool denormPos = tempDenorm&(1<<((*def).totBits -1));
+	tempDenorm &= ~(1<<((*def).totBits-1));
+	if(tempDenorm <= denorm){
+		//removes the sign bit if on so it does not make the double NAN
+		if(denormPos) fx &= ~(1<<((*def).totBits-1));
 		fx &= ~(1<<((*def).totBits - (*def).expBits -2));
 		fx = fx<<1;
-		fx &= ~(1<<((*def).totBits - (*def).expBits));
+		if(denormPos) fx |=(1L<<((*def).totBits-1));
 	}
 
 
@@ -154,6 +161,7 @@ double floatxToDouble(const floatxDef *def, floatx fx) {
 
 
 	if(tooBig) representations.i|=0x7FF0000000000000;
+
 	if(zero) representations.d = 0.0;
 
 	//bitMaskExp = (fx&(bitMaskExp<<((*def).totBits-(*def).expBits - 1)))>>(*def).totBits-(*def).expBits - 1);
