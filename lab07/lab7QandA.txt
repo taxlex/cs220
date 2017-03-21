@@ -1,55 +1,56 @@
 Answer questions 1-4 with the optimization set at its original value, "OPT=00".
 
 1. Scan through the x86Math.s and x86Math.objdump.txt files side by side.
-	A. Do these two files contain similar sets of x86 instructions for the "add" function? 	______
-	B. Do both files refer back to the original C code from which they were derived? 	______
-	C. Does the gdb disassembly match the x86 instructions in both the .s and objdump files? _______
-	D. Which format of all three do you find easier and why? 
+	A. Do these two files contain similar sets of x86 instructions for the "add" function? yes
+	B. Do both files refer back to the original C code from which they were derived? They both do the .s file only refers back to the function while the .txt has line numbers
+	C. Does the gdb disassembly match the x86 instructions in both the .s and objdump files?Yes, it is more similar to the .txt though
+	D. Which format of all three do you find easier and why?  I find x86Math.objdump.txt easier to read and understand where I am at in the code.
 		
 		
 		
 		
 
 2. How many assembler instructions are required for:
-	A. the "add" function :		_____
-	B. the "subtract" function:	_____
+	A. the "add" function :		13
+	B. the "subtract" function:	12
 	
 3. How many bytes are needed for the x86 version of the x86Math program? (You can find this by scrolling
 	to the bottom of file x86Math.s and finding the hex value associated with the last instruction in 
-	the file.) _____
+	the file.) 016e
 	
 4. Find the x86 add instruction that adds op1+op2 in the add function.
-	A. What line number is that instruction at in the x86Math.s file? : _______
-	B. What hexadecimal address contains that instruction from the x86Math.objdump.txt file? : ___________
+	A. What line number is that instruction at in the x86Math.s file? :154
+	B. What hexadecimal address contains that instruction from the x86Math.objdump.txt file? : 40063d
 	
 5. In gdb, just before you execute the instruction at 0x000000000040063d for the first time:
-	A. What is the value in the "edx" register? : _________
-	B. What is the value in the "eax" register? : _________
-	C. After you execute the instruction, what is the value in the "eax" register? : ________
+	A. What is the value in the "edx" register? : 0
+	B. What is the value in the "eax" register? : 4
+	C. After you execute the instruction, what is the value in the "eax" register? : 4
 	
 Answer questions 6-8 with the optimization variable set to "OPT=O1" to do some optimization
 
 6. Is it still possible to map directly from C code to x86 assembler instructions? What has happened?
-	
-	
+It is still possible and is more efficient now
+
 	
 	
 	
 	
 7. In gdb, what x86 instruction is about to get executed when you reach the first breakpoint in the "add" function?
-	______________________________
+	ans=add(ans,4);
 	 
 8. 
-	A. How many bytes are needed for this x86 version of the x86Math program? _______
-	B. How does this compare to the length of the previous version? About ______________________
-	C. Why is there a difference? _________________________________________________________________
+	A. How many bytes are needed for this x86 version of the x86Math program? 0082 
+	B. How does this compare to the length of the previous version? About half as many bytes
+	C. Why is there a difference? because the assembler was able to optimize the instructions
 	 
 Answer questions 9-10 with the optimization value set to "OPT=O0 -DSIMPLE"
 
 9. 
-	A. How many bytes are needed for this x86 version of the x86Math program? _________
-	B. How does this compare to previous versions? ______________________________________________
-	C. Does the optimizer do a better job than a human in this case? _________________
+	A. How many bytes are needed for this x86 version of the x86Math program? 0126
+	B. How does this compare to previous versions? it is in between the previous two versions
+	C. Does the optimizer do a better job than a human in this case? The human performs worse
 
 10. Compare the x86 instructions for the add function with the x86 instructions for the add function in the
 	first part of the lab. What is the main difference?
+	The x86 for the first part took more lines to complete the same instruction.
