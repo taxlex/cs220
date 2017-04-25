@@ -4,4 +4,4 @@
 # Lines that start with "X " are hexadecimal strings, the data is converted from hex to ASCII and copied
 #    to the output (testHex.txt)
 C This is a character string
-X deadbeef
+X 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000efbeadde5006400000000000
